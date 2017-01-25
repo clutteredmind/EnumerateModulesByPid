@@ -24,19 +24,21 @@ int main (int argc, char* argv[])
    auto result = EXIT_SUCCESS;
 
    // declare the supported command-line options.
-   options::options_description desc ("Usage");
-   desc.add_options ()
+   options::options_description usage ("Usage");
+   usage.add_options ()
       ("help,h", "Display usage information.")
       ("process-id,p", options::value<DWORD> (), "The Process ID for which to enumerate loaded modules.");
+   options::positional_options_description positional_options;
+   positional_options.add ("process-id", 1);
 
    options::variables_map variables_map;
-   options::store (options::parse_command_line (argc, argv, desc), variables_map);
+   options::store (options::command_line_parser (argc, argv).options (usage).positional (positional_options).run (), variables_map);
    options::notify (variables_map);
 
    // if help is requested, show help and exit
    if (variables_map.count ("help"))
    {
-      cout << desc << endl;
+      cout << usage << endl;
       // early return
       return EXIT_FAILURE;
    }
@@ -89,7 +91,7 @@ int main (int argc, char* argv[])
       // on any exception, display the exception message and the application's usage
       cerr << "Error: " << exception.what () << endl;
       cerr << endl;
-      cerr << desc << endl;
+      cerr << usage << endl;
       result = EXIT_FAILURE;
    }
 
